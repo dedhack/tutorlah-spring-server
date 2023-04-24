@@ -13,16 +13,16 @@ import java.util.Collection;
 import java.util.List;
 
 @Data
+@Builder // optional to use builder patterns
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-@Entity
-@Table(name = "users")
+@Entity // necessary
+@Table(name = "_user")
 public class User implements UserDetails {
 
     @Id
     @GeneratedValue
-    private int id;
+    private Integer id;
 
     private String firstname;
     private String lastname;
@@ -30,8 +30,9 @@ public class User implements UserDetails {
     private String password;
 
     @Enumerated(EnumType.STRING)
-    private Role role;
+    private Role role; // create ENUM
 
+    // To return a list of roles
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority(role.name()));
@@ -66,5 +67,4 @@ public class User implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
-
 }

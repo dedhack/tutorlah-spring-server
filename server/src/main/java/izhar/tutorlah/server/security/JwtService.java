@@ -10,30 +10,38 @@ import org.springframework.stereotype.Service;
 
 import java.security.Key;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.function.Function;
 
 @Service
 public class JwtService {
 
-    public String extractUsername(String token){
+    public String extractUsername(String token) {
+
         return extractClaim(token, Claims::getSubject);
     }
-
-
-
+    // generate token from user details only
     public String generateToken(UserDetails userDetails){
-
-        Date currentDate = new Date();
-        Date expireDate = new Date(currentDate.getTime() + SecurityConstants.JWT_EXPIRATION);
-
-        return Jwts.builder()
-                .setSubject(userDetails.getUsername())
-                .setIssuedAt(new Date())
-                .setExpiration(expireDate)
-                .signWith(getSignInKey(), SignatureAlgorithm.HS256)
-                .compact();
+        return generateToken(new HashMap<>(), userDetails);
     }
 
+    // generate token with extra claims
+    public String generateToken(
+            Map<String, Object> extraClaims,// for passing additional details like authorities etc
+            UserDetails userDetails
+    ){
+        return Jwts.builder()
+                .setClaims(extraClaims)
+                .setSubject(userDetails.getUsername()) // this is passing our email, which in Spring the unique item detail is Username
+                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 24)) // valid for 24 hours before expriing
+                .signWith(getSignInKey(), SignatureAlgorithm.HS256)
+                .compact(); // to finally generate and return the token
+
+    }
+
+    // check validity of token
     public boolean isTokenValid(String token, UserDetails userDetails){
         final String username = extractUsername(token);
         return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
@@ -46,7 +54,6 @@ public class JwtService {
     private Date extractExpiration(String token) {
         return extractClaim(token, Claims::getExpiration);
     }
-
 
 
     public <T> T extractClaim(String token, Function<Claims, T> claimsResolver){
