@@ -9,6 +9,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -17,7 +18,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity // necessary
-@Table(name = "_user")
+@Table(name = "users")
 public class User implements UserDetails {
 
     @Id
@@ -31,6 +32,10 @@ public class User implements UserDetails {
 
     @Enumerated(EnumType.STRING)
     private Role role; // create ENUM
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Post> forumPosts = new ArrayList<Post>();
+
 
     // To return a list of roles
     @Override
