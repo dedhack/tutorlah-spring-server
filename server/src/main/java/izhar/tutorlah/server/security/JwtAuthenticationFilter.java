@@ -5,7 +5,11 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -25,18 +29,33 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             HttpServletResponse response,
             FilterChain filterChain) throws ServletException, IOException {
 
-        String token = getJwtFromRequest(request); // returns either jwt token or null
+        String jwt = getJwtFromRequest(request); // returns either jwt token or null
         // if token is null, proceed to next filter chain
-        if (token == null){
+        if (jwt == null){
             filterChain.doFilter(request, response);
             return;
         }
 
-        String userEmail = jwtService.extr
+        String userEmail = jwtService.extractUsername(jwt);
+        if(userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null){
 
+            // check user from DB
+            UserDetails userDetails =  this.userDetailsService.loadUserByUsername(userEmail);
+            // check token is valid
+            if (jwtService.isTokenValid(jwt,userDetails)){
+                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                        userDetails,
+                        null,
+                        userDetails.getAuthorities()
+                );
+                authToken.setDetails(
+                        new WebAuthenticationDetailsSource().buildDetails(request)
+                );
+                SecurityContextHolder.getContext().setAuthentication(authToken);
+            }
 
-
-
+        }
+        filterChain.doFilter(request,response);
     }
 
     private String getJwtFromRequest(HttpServletRequest request) {
