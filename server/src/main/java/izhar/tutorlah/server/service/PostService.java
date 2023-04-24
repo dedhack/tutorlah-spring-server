@@ -1,16 +1,18 @@
 package izhar.tutorlah.server.service;
 
 import izhar.tutorlah.server.dto.PostDto;
+import izhar.tutorlah.server.models.Post;
+import izhar.tutorlah.server.models.PostResponse;
 
 public interface PostService {
 
-    PostDto createPost(PostDto postDto)
+    PostDto createPost(PostDto postDto);
 
-    getAllPosts
+    PostResponse getAllPosts(int pageNo, int pageSize);
 
-    getPostById
-    deletePostBy
-            searchPosts
-    updatePost
+    PostDto getPostById(long id);
+    void deletePostBy(long id);
+    PostResponse searchPosts(String searchTerm);
+    PostDto updatePost(long id, PostDto postDto);
 
 }
