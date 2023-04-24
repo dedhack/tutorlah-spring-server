@@ -4,6 +4,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -20,28 +21,33 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-    private JwtService jwtService;
-    private UserDetailsService userDetailsService;
+    private final JwtService jwtService;
+    private final UserDetailsService userDetailsService;
 
     @Override
     protected void doFilterInternal(
-            HttpServletRequest request,
-            HttpServletResponse response,
-            FilterChain filterChain) throws ServletException, IOException {
+            @NonNull HttpServletRequest request,
+            @NonNull HttpServletResponse response,
+            @NonNull FilterChain filterChain
+    ) throws ServletException, IOException {
+        final String authHeader = request.getHeader("Authorization");
+        final String jwt;
+        final String userEmail;
 
-        String jwt = getJwtFromRequest(request); // returns either jwt token or null
-        // if token is null, proceed to next filter chain
-        if (jwt == null){
-            filterChain.doFilter(request, response);
+        // if no authHeader, the filter will pass the request along the filter chain
+        if (authHeader == null || !authHeader.startsWith("Bearer ")){
+            filterChain.doFilter(request,response);
             return;
         }
 
-        String userEmail = jwtService.extractUsername(jwt);
-        if(userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null){
-
+        // if the header is present then, we extract the jwt token
+        jwt = authHeader.substring(7); // extract the token from the header after "Bearer "
+        userEmail = jwtService.extractUsername(jwt);// TODO: extract the userEmail from JWT Token
+        // check userEmail is not null & if user has not been authenticated previously
+        if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null){
             // check user from DB
-            UserDetails userDetails =  this.userDetailsService.loadUserByUsername(userEmail);
-            // check token is valid
+            UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
+            // check if token is valid
             if (jwtService.isTokenValid(jwt,userDetails)){
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                         userDetails,
@@ -51,18 +57,20 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 authToken.setDetails(
                         new WebAuthenticationDetailsSource().buildDetails(request)
                 );
+                // now to update security context holder
                 SecurityContextHolder.getContext().setAuthentication(authToken);
             }
 
         }
-        filterChain.doFilter(request,response);
+        // finally, pass it along
+        filterChain.doFilter(request, response);
     }
 
-    private String getJwtFromRequest(HttpServletRequest request) {
-        String bearerToken = request.getHeader("Authorization");
-        if(StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")){
-            return bearerToken.substring(7, bearerToken.length());
-        }
-        return null;
-    }
+//    private String getJwtFromRequest(HttpServletRequest request) {
+//        String bearerToken = request.getHeader("Authorization");
+//        if(StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")){
+//            return bearerToken.substring(7, bearerToken.length());
+//        }
+//        return null;
+//    }
 }
