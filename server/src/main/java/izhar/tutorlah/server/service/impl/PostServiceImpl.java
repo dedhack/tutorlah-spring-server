@@ -10,6 +10,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -24,7 +26,20 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public PostDto createPost(PostDto postDto) {
-        return null;
+        Post post = new Post();
+        post.setTitle(postDto.getTitle());
+        post.setContent(postDto.getContent());
+        post.setCreationDateTime(LocalDateTime.now());
+
+        Post newPost = postRepository.save(post);
+
+        PostDto postDtoResponse = new PostDto();
+        postDtoResponse.setId(newPost.getId());
+        postDtoResponse.setTitle(newPost.getTitle());
+        postDtoResponse.setContent(newPost.getContent());
+        postDtoResponse.setCreationDateTime(newPost.getCreationDateTime());
+
+        return postDtoResponse;
     }
 
     @Override

@@ -1,16 +1,14 @@
 package izhar.tutorlah.server.controllers;
 
 
+import izhar.tutorlah.server.dto.PostDto;
 import izhar.tutorlah.server.models.Post;
 import izhar.tutorlah.server.models.PostResponse;
 import izhar.tutorlah.server.service.PostService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/post")
@@ -30,6 +28,12 @@ public class PostController {
             @RequestParam(value = "pageSize", defaultValue = "10", required = true) int pageSize
     ){
         return new ResponseEntity<>(postService.getAllPosts(pageNo, pageSize), HttpStatus.OK);
+    }
+
+    // Create a post
+    @PostMapping("/create")
+    public ResponseEntity<PostDto> createPost(@RequestBody PostDto postDto){
+        return new ResponseEntity<>(postService.createPost(postDto), HttpStatus.CREATED);
     }
 
 
