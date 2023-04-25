@@ -2,6 +2,8 @@ package izhar.tutorlah.server.service.impl;
 
 import izhar.tutorlah.server.dto.CommentDto;
 import izhar.tutorlah.server.dto.PostDto;
+import izhar.tutorlah.server.dto.UserDto;
+import izhar.tutorlah.server.exceptions.CommentNotFoundException;
 import izhar.tutorlah.server.exceptions.PostNotFoundException;
 import izhar.tutorlah.server.models.Comment;
 import izhar.tutorlah.server.models.Post;
@@ -16,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -55,8 +58,17 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public CommentDto getCommentById(long commentId, long postId) {
-        return null;
+    public CommentDto getCommentById(long commentId) {
+//        Post post = postRepository.findById(postId).orElseThrow(()-> new PostNotFoundException("Post associated with review not found"));
+
+        Comment comment = commentRepository.findById(commentId).orElseThrow(()->new CommentNotFoundException("Comment associated with Post not found"));
+
+        // compare the post id retrieved from comment vs post
+//        if (!Objects.equals(comment.getPost().getId(), post.getId())){
+//            throw new CommentNotFoundException("This comment does not belong to a pokemon");
+//        }
+
+        return mapToDto(comment);
     }
 
     @Override
@@ -75,8 +87,20 @@ public class CommentServiceImpl implements CommentService {
         commentDto.setId(comment.getId());
         commentDto.setContent(comment.getContent());
         commentDto.setCreationDateTime(LocalDateTime.now());
+        commentDto.setUserId(comment.getUser().getId());
+        commentDto.setEmail(comment.getUser().getEmail());
+
         return commentDto;
     }
+
+//    private UserDto userMapToDto(User user){
+//        UserDto userDto = new UserDto();
+//        userDto.setId(user.getId());
+//        userDto.setFirstname(user.getFirstname());
+//        userDto.setLastname(user.getLastname());
+//        userDto.setEmail(user.getEmail());
+//        return userDto;
+//    }
 
     private Comment mapToEntity(CommentDto commentDto){
         Comment comment = new Comment();
