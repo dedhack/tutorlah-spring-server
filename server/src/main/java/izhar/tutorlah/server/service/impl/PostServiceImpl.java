@@ -69,6 +69,7 @@ public class PostServiceImpl implements PostService {
     @Override
     public void deletePostById(long id) {
         Post post = postRepository.findById(id).orElseThrow(()->new PostNotFoundException("Post could not be found"));
+        postRepository.delete(post);
     }
 
     @Override
@@ -78,7 +79,15 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public PostDto updatePost(long id, PostDto postDto) {
-        return null;
+        Post post = postRepository.findById(id).orElseThrow(()-> new PostNotFoundException("Post could not be updated"));
+
+        post.setTitle(postDto.getContent());
+        post.setContent(postDto.getContent());
+        post.setCreationDateTime(LocalDateTime.now());
+
+        Post updatedPost = postRepository.save(post);
+        return mapToDto(updatedPost);
+
     }
 
     // Mapper Functions
