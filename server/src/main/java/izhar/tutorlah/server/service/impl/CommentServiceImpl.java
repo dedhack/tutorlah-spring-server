@@ -1,8 +1,6 @@
 package izhar.tutorlah.server.service.impl;
 
 import izhar.tutorlah.server.dto.CommentDto;
-import izhar.tutorlah.server.dto.PostDto;
-import izhar.tutorlah.server.dto.UserDto;
 import izhar.tutorlah.server.exceptions.CommentNotFoundException;
 import izhar.tutorlah.server.exceptions.PostNotFoundException;
 import izhar.tutorlah.server.models.Comment;
@@ -39,10 +37,10 @@ public class CommentServiceImpl implements CommentService {
     public CommentDto createComment(long postId, long userId, CommentDto commentDto) {
         Comment comment = mapToEntity(commentDto);
 
-        Post post = postRepository.findById(postId).orElseThrow(()-> new PostNotFoundException("Post associated with review not found"));
+        Post post = postRepository.findById(postId).orElseThrow(() -> new PostNotFoundException("Post associated with review not found"));
         comment.setPost(post);
 
-        User user = userRepository.findById(userId).orElseThrow(()->new UsernameNotFoundException("User associated with review not found"));
+        User user = userRepository.findById(userId).orElseThrow(() -> new UsernameNotFoundException("User associated with review not found"));
         comment.setUser(user);
 
         Comment newComment = commentRepository.save(comment);
@@ -61,7 +59,7 @@ public class CommentServiceImpl implements CommentService {
     public CommentDto getCommentById(long commentId) {
 //        Post post = postRepository.findById(postId).orElseThrow(()-> new PostNotFoundException("Post associated with review not found"));
 
-        Comment comment = commentRepository.findById(commentId).orElseThrow(()->new CommentNotFoundException("Comment associated with Post not found"));
+        Comment comment = commentRepository.findById(commentId).orElseThrow(() -> new CommentNotFoundException("Comment associated with Post not found"));
 
         // compare the post id retrieved from comment vs post
 //        if (!Objects.equals(comment.getPost().getId(), post.getId())){
@@ -72,17 +70,47 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public CommentDto updateComment(long postId, long userId, long commentId, CommentDto commentDto) {
-        return null;
+    public CommentDto updateComment(
+            long postId, long commentId, CommentDto commentDto) {
+        // find post
+        Post post = postRepository.findById(postId).orElseThrow(()-> new PostNotFoundException("Post associated with comment not found"));
+
+        // find comment
+        Comment comment = commentRepository.findById(commentId).orElseThrow(()-> new CommentNotFoundException("Comment associated with Post not found"));
+
+        // find user
+        User user = userRepository.findById(commentDto.getUserId()).orElseThrow(()-> new UsernameNotFoundException("User associated with Comment not found"));
+
+        // TODO: check if userId matches before allowing update
+        if(!Objects.equals(comment.getUser().getId(), user.getId())){
+            throw new RuntimeException("Invalid");
+        }
+
+        // MAIN: set the values for comments
+        comment.setContent(commentDto.getContent());
+        comment.setCreationDateTime(LocalDateTime.now());
+
+        // update comment repository
+        Comment updatedComment = commentRepository.save(comment);
+
+        // return mappedToDto comment
+        return mapToDto(updatedComment);
     }
 
     @Override
-    public void deleteComment(long postId, long commentId) {
+    public void deleteComment( long commentId) {
+        // check if correct post found
+//        Post post = postRepository.findById(postId).orElseThrow(()->new PostNotFoundException("Post associated with Comment not found"));
 
+        // check if correct comment found
+        Comment comment = commentRepository.findById(commentId).orElseThrow(()-> new CommentNotFoundException("Comment associated with Post not found"));
+
+        // delete comment
+        commentRepository.delete(comment);
     }
 
     // Mappers
-    private CommentDto mapToDto(Comment comment){
+    private CommentDto mapToDto(Comment comment) {
         CommentDto commentDto = new CommentDto();
         commentDto.setId(comment.getId());
         commentDto.setContent(comment.getContent());
@@ -102,7 +130,7 @@ public class CommentServiceImpl implements CommentService {
 //        return userDto;
 //    }
 
-    private Comment mapToEntity(CommentDto commentDto){
+    private Comment mapToEntity(CommentDto commentDto) {
         Comment comment = new Comment();
         comment.setContent(commentDto.getContent());
         comment.setCreationDateTime(LocalDateTime.now());
