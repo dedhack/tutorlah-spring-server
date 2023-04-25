@@ -30,11 +30,21 @@ public class PostController {
         return new ResponseEntity<>(postService.getAllPosts(pageNo, pageSize), HttpStatus.OK);
     }
 
+    // Get single post by id
+    @GetMapping("/{id}")
+    public ResponseEntity<PostDto> getPostById(@PathVariable long id){
+        return new ResponseEntity<>(postService.getPostById(id), HttpStatus.OK);
+    }
+
     // Create a post
     @PostMapping("/create")
     public ResponseEntity<PostDto> createPost(@RequestBody PostDto postDto){
         return new ResponseEntity<>(postService.createPost(postDto), HttpStatus.CREATED);
     }
+
+
+
+
 
 
 }

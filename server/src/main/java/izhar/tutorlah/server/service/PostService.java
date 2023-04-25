@@ -11,7 +11,7 @@ public interface PostService {
     PostResponse getAllPosts(int pageNo, int pageSize);
 
     PostDto getPostById(long id);
-    void deletePostBy(long id);
+    void deletePostById(long id);
     PostResponse searchPosts(String searchTerm);
     PostDto updatePost(long id, PostDto postDto);
 

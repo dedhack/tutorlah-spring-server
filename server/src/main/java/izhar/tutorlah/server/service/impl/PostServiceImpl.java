@@ -1,6 +1,7 @@
 package izhar.tutorlah.server.service.impl;
 
 import izhar.tutorlah.server.dto.PostDto;
+import izhar.tutorlah.server.exceptions.PostNotFoundException;
 import izhar.tutorlah.server.models.Post;
 import izhar.tutorlah.server.models.PostResponse;
 import izhar.tutorlah.server.repository.PostRepository;
@@ -11,7 +12,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -24,7 +24,6 @@ public class PostServiceImpl implements PostService {
         this.postRepository = postRepository;
     }
 
-    @Override
     public PostDto createPost(PostDto postDto) {
         Post post = new Post();
         post.setTitle(postDto.getTitle());
@@ -63,12 +62,13 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public PostDto getPostById(long id) {
-        return null;
+        Post post = postRepository.findById(id).orElseThrow(()-> new PostNotFoundException("Post could not be found"));
+        return mapToDto(post);
     }
 
     @Override
-    public void deletePostBy(long id) {
-
+    public void deletePostById(long id) {
+        Post post = postRepository.findById(id).orElseThrow(()->new PostNotFoundException("Post could not be found"));
     }
 
     @Override
