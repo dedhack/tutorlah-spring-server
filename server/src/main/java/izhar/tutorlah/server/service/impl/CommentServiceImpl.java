@@ -2,12 +2,16 @@ package izhar.tutorlah.server.service.impl;
 
 import izhar.tutorlah.server.dto.CommentDto;
 import izhar.tutorlah.server.dto.PostDto;
+import izhar.tutorlah.server.exceptions.PostNotFoundException;
 import izhar.tutorlah.server.models.Comment;
+import izhar.tutorlah.server.models.Post;
+import izhar.tutorlah.server.models.User;
 import izhar.tutorlah.server.repository.CommentRepository;
 import izhar.tutorlah.server.repository.PostRepository;
 import izhar.tutorlah.server.repository.UserRepository;
 import izhar.tutorlah.server.service.CommentService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -27,10 +31,19 @@ public class CommentServiceImpl implements CommentService {
         this.userRepository = userRepository;
     }
 
-
     @Override
-    public CommentDto createComment(long postId, long userId, PostDto postDto) {
-        return null;
+    public CommentDto createComment(long postId, long userId, CommentDto commentDto) {
+        Comment comment = mapToEntity(commentDto);
+
+        Post post = postRepository.findById(postId).orElseThrow(()-> new PostNotFoundException("Post associated with review not found"));
+        comment.setPost(post);
+
+        User user = userRepository.findById(userId).orElseThrow(()->new UsernameNotFoundException("User associated with review not found"));
+        comment.setUser(user);
+
+        Comment newComment = commentRepository.save(comment);
+
+        return mapToDto(newComment);
     }
 
     @Override
@@ -44,7 +57,7 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public CommentDto updateComment(long postId, long userId, long commentId, PostDto postDto) {
+    public CommentDto updateComment(long postId, long userId, long commentId, CommentDto commentDto) {
         return null;
     }
 
