@@ -86,7 +86,7 @@ public class CommentServiceImpl implements CommentService {
         CommentDto commentDto = new CommentDto();
         commentDto.setId(comment.getId());
         commentDto.setContent(comment.getContent());
-        commentDto.setCreationDateTime(LocalDateTime.now());
+        commentDto.setCreationDateTime(comment.getCreationDateTime());
         commentDto.setUserId(comment.getUser().getId());
         commentDto.setEmail(comment.getUser().getEmail());
 
