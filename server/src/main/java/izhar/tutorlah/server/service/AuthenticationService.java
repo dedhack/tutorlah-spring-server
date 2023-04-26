@@ -3,6 +3,7 @@ package izhar.tutorlah.server.service;
 import izhar.tutorlah.server.auth.AuthenticationRequest;
 import izhar.tutorlah.server.auth.AuthenticationResponse;
 import izhar.tutorlah.server.auth.RegisterRequest;
+import izhar.tutorlah.server.exceptions.UserAlreadyExistsException;
 import izhar.tutorlah.server.models.Role;
 import izhar.tutorlah.server.models.User;
 import izhar.tutorlah.server.repository.UserRepository;
@@ -24,6 +25,11 @@ public class AuthenticationService {
     private final AuthenticationManager authenticationManager;
 
     public AuthenticationResponse register(RegisterRequest request) {
+        // Validate if user already exists
+        if (userRepository.findByEmail(request.getEmail()).isPresent()) {
+            throw new UserAlreadyExistsException("User with email " + request.getEmail() + " already exists.");
+        }
+
         var user = User.builder()
                 .firstname(request.getFirstname())
                 .lastname(request.getLastname())
