@@ -6,7 +6,7 @@ import izhar.tutorlah.server.models.PostResponse;
 
 public interface PostService {
 
-    PostDto createPost(PostDto postDto);
+    PostDto createPost(long userId, PostDto postDto);
 
     PostResponse getAllPosts(int pageNo, int pageSize);
 

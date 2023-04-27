@@ -28,7 +28,6 @@ public class Post {
     private LocalDateTime creationDateTime;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
     private User user;
 
 }

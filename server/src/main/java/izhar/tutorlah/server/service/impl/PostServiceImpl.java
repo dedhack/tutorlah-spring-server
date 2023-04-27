@@ -4,11 +4,14 @@ import izhar.tutorlah.server.dto.PostDto;
 import izhar.tutorlah.server.exceptions.PostNotFoundException;
 import izhar.tutorlah.server.models.Post;
 import izhar.tutorlah.server.models.PostResponse;
+import izhar.tutorlah.server.models.User;
 import izhar.tutorlah.server.repository.PostRepository;
+import izhar.tutorlah.server.repository.UserRepository;
 import izhar.tutorlah.server.service.PostService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -20,15 +23,23 @@ public class PostServiceImpl implements PostService {
 
     private PostRepository postRepository;
 
-    public PostServiceImpl(PostRepository postRepository) {
+    private UserRepository userRepository;
+
+    public PostServiceImpl(PostRepository postRepository, UserRepository userRepository) {
         this.postRepository = postRepository;
+        this.userRepository = userRepository;
     }
 
-    public PostDto createPost(PostDto postDto) {
+
+    public PostDto createPost(long userId, PostDto postDto) {
+
         Post post = new Post();
         post.setTitle(postDto.getTitle());
         post.setContent(postDto.getContent());
         post.setCreationDateTime(LocalDateTime.now());
+
+        User user = userRepository.findById(userId).orElseThrow(() -> new UsernameNotFoundException("User associated with review not found"));
+        post.setUser(user);
 
         Post newPost = postRepository.save(post);
 
