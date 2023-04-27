@@ -50,6 +50,8 @@ public class PostServiceImpl implements PostService {
         postDtoResponse.setContent(newPost.getContent());
         postDtoResponse.setUserId(newPost.getUser().getId());
         postDtoResponse.setSubject(newPost.getSubject());
+        postDtoResponse.setEmail(newPost.getUser().getUsername());
+        postDtoResponse.setFirstname(newPost.getUser().getFirstname());
         postDtoResponse.setCreationDateTime(newPost.getCreationDateTime());
 
         return postDtoResponse;
@@ -130,8 +132,11 @@ public class PostServiceImpl implements PostService {
         postDto.setId(post.getId());
         postDto.setTitle(post.getTitle());
         postDto.setContent(post.getContent());
+        postDto.setSubject(post.getSubject());
         postDto.setCreationDateTime(post.getCreationDateTime());
         postDto.setUserId(post.getUser().getId());
+        postDto.setEmail(post.getUser().getUsername());
+        postDto.setFirstname(post.getUser().getFirstname());
         return postDto;
     }
 

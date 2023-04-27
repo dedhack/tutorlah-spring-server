@@ -12,5 +12,6 @@ public class PostDto {
     private String subject;
     private LocalDateTime creationDateTime;
     private Long userId;
-
+    private String email; // user.getUsername();
+    private String firstname; // user.getFirstname();
 }
