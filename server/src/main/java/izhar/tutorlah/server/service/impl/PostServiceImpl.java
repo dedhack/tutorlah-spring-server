@@ -14,6 +14,7 @@ import izhar.tutorlah.server.service.PostService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
@@ -84,7 +85,7 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public PostResponse getAllPostsBySubject(int pageNo, int pageSize, String subject) {
-        Pageable pageable = PageRequest.of(pageNo, pageSize);
+        Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by("creationDateTime").descending());
         Page<Post> posts = postRepository.findAllBySubject(subject, pageable); // retrieving post objects by subject
 
         List<Post> listOfPosts = posts.getContent();
