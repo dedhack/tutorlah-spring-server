@@ -131,7 +131,7 @@ public class PostServiceImpl implements PostService {
     public PostDto updatePost(long id, PostDto postDto) {
         Post post = postRepository.findById(id).orElseThrow(()-> new PostNotFoundException("Post could not be updated"));
 
-        post.setTitle(postDto.getContent());
+        post.setTitle(postDto.getTitle());
         post.setContent(postDto.getContent());
         post.setCreationDateTime(LocalDateTime.now());
 
