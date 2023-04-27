@@ -45,14 +45,14 @@ public class CommentServiceImpl implements CommentService {
 
         Comment newComment = commentRepository.save(comment);
 
-        return mapToDto(newComment);
+        return commentMapToDto(newComment);
     }
 
     @Override
     public List<CommentDto> getCommentsByPostId(long id) {
         List<Comment> comments = commentRepository.findByPostId(id);
 
-        return comments.stream().map(comment -> mapToDto(comment)).collect(Collectors.toList());
+        return comments.stream().map(comment -> commentMapToDto(comment)).collect(Collectors.toList());
     }
 
     @Override
@@ -66,7 +66,7 @@ public class CommentServiceImpl implements CommentService {
 //            throw new CommentNotFoundException("This comment does not belong to a pokemon");
 //        }
 
-        return mapToDto(comment);
+        return commentMapToDto(comment);
     }
 
     @Override
@@ -94,7 +94,7 @@ public class CommentServiceImpl implements CommentService {
         Comment updatedComment = commentRepository.save(comment);
 
         // return mappedToDto comment
-        return mapToDto(updatedComment);
+        return commentMapToDto(updatedComment);
     }
 
     @Override
@@ -110,7 +110,7 @@ public class CommentServiceImpl implements CommentService {
     }
 
     // Mappers
-    private CommentDto mapToDto(Comment comment) {
+    private CommentDto commentMapToDto(Comment comment) {
         CommentDto commentDto = new CommentDto();
         commentDto.setId(comment.getId());
         commentDto.setContent(comment.getContent());

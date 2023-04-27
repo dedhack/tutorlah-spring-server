@@ -1,10 +1,13 @@
 package izhar.tutorlah.server.service.impl;
 
+import izhar.tutorlah.server.dto.CommentDto;
 import izhar.tutorlah.server.dto.PostDto;
 import izhar.tutorlah.server.exceptions.PostNotFoundException;
+import izhar.tutorlah.server.models.Comment;
 import izhar.tutorlah.server.models.Post;
 import izhar.tutorlah.server.models.PostResponse;
 import izhar.tutorlah.server.models.User;
+import izhar.tutorlah.server.repository.CommentRepository;
 import izhar.tutorlah.server.repository.PostRepository;
 import izhar.tutorlah.server.repository.UserRepository;
 import izhar.tutorlah.server.service.PostService;
@@ -25,11 +28,14 @@ public class PostServiceImpl implements PostService {
 
     private UserRepository userRepository;
 
-    public PostServiceImpl(PostRepository postRepository, UserRepository userRepository) {
+    private CommentRepository commentRepository;
+
+
+    public PostServiceImpl(PostRepository postRepository, UserRepository userRepository, CommentRepository commentRepository) {
         this.postRepository = postRepository;
         this.userRepository = userRepository;
+        this.commentRepository = commentRepository;
     }
-
 
     public PostDto createPost(long userId, PostDto postDto) {
 
@@ -99,7 +105,14 @@ public class PostServiceImpl implements PostService {
     @Override
     public PostDto getPostById(long id) {
         Post post = postRepository.findById(id).orElseThrow(()-> new PostNotFoundException("Post could not be found"));
-        return mapToDto(post);
+
+        // get comments related to post
+        List<Comment> comments = commentRepository.findByPostId(id);
+        List<CommentDto> commentDtos = comments.stream().map(comment -> commentMapToDto(comment)).collect(Collectors.toList());
+        PostDto postDto = mapToDto(post);
+        postDto.setComments(commentDtos);
+
+        return postDto;
     }
 
     @Override
@@ -146,5 +159,16 @@ public class PostServiceImpl implements PostService {
         post.setContent(postDto.getContent());
         post.setCreationDateTime(postDto.getCreationDateTime());
         return post;
+    }
+
+    private CommentDto commentMapToDto(Comment comment) {
+        CommentDto commentDto = new CommentDto();
+        commentDto.setId(comment.getId());
+        commentDto.setContent(comment.getContent());
+        commentDto.setCreationDateTime(comment.getCreationDateTime());
+        commentDto.setUserId(comment.getUser().getId());
+        commentDto.setEmail(comment.getUser().getEmail());
+
+        return commentDto;
     }
 }
