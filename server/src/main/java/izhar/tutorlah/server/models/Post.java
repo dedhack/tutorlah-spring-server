@@ -25,6 +25,9 @@ public class Post {
     @NotBlank(message = "Content is required")
     private String content;
 
+    @NotBlank(message = "Subject is required")
+    private String subject;
+
     private LocalDateTime creationDateTime;
 
     @ManyToOne(fetch = FetchType.LAZY)

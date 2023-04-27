@@ -10,6 +10,8 @@ public interface PostService {
 
     PostResponse getAllPosts(int pageNo, int pageSize);
 
+    PostResponse getAllPostsBySubject(int pageNo, int pageSize, String subject);
+
     PostDto getPostById(long id);
     void deletePostById(long id);
     PostResponse searchPosts(String searchTerm);

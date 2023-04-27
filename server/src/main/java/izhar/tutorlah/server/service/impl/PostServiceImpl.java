@@ -36,6 +36,7 @@ public class PostServiceImpl implements PostService {
         Post post = new Post();
         post.setTitle(postDto.getTitle());
         post.setContent(postDto.getContent());
+        post.setSubject(postDto.getSubject());
         post.setCreationDateTime(LocalDateTime.now());
 
         User user = userRepository.findById(userId).orElseThrow(() -> new UsernameNotFoundException("User associated with review not found"));
@@ -47,6 +48,8 @@ public class PostServiceImpl implements PostService {
         postDtoResponse.setId(newPost.getId());
         postDtoResponse.setTitle(newPost.getTitle());
         postDtoResponse.setContent(newPost.getContent());
+        postDtoResponse.setUserId(newPost.getUser().getId());
+        postDtoResponse.setSubject(newPost.getSubject());
         postDtoResponse.setCreationDateTime(newPost.getCreationDateTime());
 
         return postDtoResponse;
@@ -70,6 +73,26 @@ public class PostServiceImpl implements PostService {
 
         return postResponse;
     }
+
+    @Override
+    public PostResponse getAllPostsBySubject(int pageNo, int pageSize, String subject) {
+        Pageable pageable = PageRequest.of(pageNo, pageSize);
+        Page<Post> posts = postRepository.findAllBySubject(subject, pageable); // retrieving post objects by subject
+
+        List<Post> listOfPosts = posts.getContent();
+        List<PostDto> content = listOfPosts.stream().map(post -> mapToDto(post)).collect(Collectors.toList());
+
+        PostResponse postResponse = new PostResponse();
+        postResponse.setContent(content);
+        postResponse.setPageNo(posts.getNumber());
+        postResponse.setPageSize(posts.getSize());
+        postResponse.setTotalElements(posts.getTotalElements());
+        postResponse.setTotalPages(posts.getTotalPages());
+        postResponse.setLast(postResponse.isLast());
+
+        return postResponse;
+    }
+
 
     @Override
     public PostDto getPostById(long id) {
