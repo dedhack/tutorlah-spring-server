@@ -12,5 +12,6 @@ public class CommentDto {
 
     private Long userId;
     private String email;
+    private String firstname;
 
 }

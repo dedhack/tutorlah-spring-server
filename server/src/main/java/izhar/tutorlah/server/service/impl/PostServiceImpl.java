@@ -169,6 +169,7 @@ public class PostServiceImpl implements PostService {
         commentDto.setCreationDateTime(comment.getCreationDateTime());
         commentDto.setUserId(comment.getUser().getId());
         commentDto.setEmail(comment.getUser().getEmail());
+        commentDto.setFirstname(comment.getUser().getFirstname());
 
         return commentDto;
     }
