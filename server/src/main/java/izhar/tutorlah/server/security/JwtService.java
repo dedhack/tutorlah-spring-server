@@ -5,6 +5,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import izhar.tutorlah.server.models.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -22,18 +23,21 @@ public class JwtService {
         return extractClaim(token, Claims::getSubject);
     }
     // generate token from user details only
-    public String generateToken(UserDetails userDetails){
-        return generateToken(new HashMap<>(), userDetails);
+    public String generateToken(User user){
+        return generateToken(new HashMap<>(), user);
     }
 
     // generate token with extra claims
     public String generateToken(
             Map<String, Object> extraClaims,// for passing additional details like authorities etc
-            UserDetails userDetails
+            User user
     ){
         return Jwts.builder()
                 .setClaims(extraClaims)
-                .setSubject(userDetails.getUsername()) // this is passing our email, which in Spring the unique item detail is Username
+                .setSubject(user.getUsername()) // this is passing our email, which in Spring the unique item detail is Username
+                .claim("authorities", user.getAuthorities())
+                .claim("firstname", user.getFirstname())
+                .claim("lastname", user.getLastname())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 24)) // valid for 24 hours before expriing
                 .signWith(getSignInKey(), SignatureAlgorithm.HS256)
