@@ -36,6 +36,15 @@ public class PostController {
         return new ResponseEntity<>(postService.getPostById(id), HttpStatus.OK);
     }
 
+    @GetMapping("/")
+    public ResponseEntity<PostResponse> getAllPostsBySubject(
+            @RequestParam(value = "pageNo", defaultValue = "0", required = false) int pageNo,
+            @RequestParam(value = "pageSize", defaultValue = "10", required = true) int pageSize,
+            @RequestParam(value ="subject" ) String subject
+    ){
+        return new ResponseEntity<>(postService.getAllPostsBySubject(pageNo, pageSize, subject), HttpStatus.OK);
+    }
+
     // Create a post
     @PostMapping("/create/{userId}")
     public ResponseEntity<PostDto> createPost(@RequestBody PostDto postDto,
